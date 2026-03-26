@@ -111,6 +111,7 @@ ev_charger_dict = {
     "/SetCurrent": {"value": None, "textformat": _a},
     "/AutoStart": {"value": 0, "textformat": _n},
     "/ChargingTime": {"value": None, "textformat": _n},
+    "/Session/Time":   {"value": None, "textformat": _n},
     "/EnableDisplay": {"value": 1, "textformat": _n},
     "/Mode": {"value": 1, "textformat": _n},
     "/Model": {"value": None, "textformat": _s},
