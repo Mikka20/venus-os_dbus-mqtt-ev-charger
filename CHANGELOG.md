@@ -1,7 +1,9 @@
 # Changelog
 
-## 0.0.5-dev
+## 0.0.5
+* Added: New dbus paths
 * Changed: Fix restart issue
+* Removed: Deprecated /ChargingTime value
 
 ## 0.0.4
 ⚠️ This version is required for Venus OS v3.60~27 or later, but it is also compatible with older versions.

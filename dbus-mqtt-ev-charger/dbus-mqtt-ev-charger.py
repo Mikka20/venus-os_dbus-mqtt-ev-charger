@@ -106,14 +106,20 @@ ev_charger_dict = {
     "/Ac/L2/Power": {"value": None, "textformat": _w},
     "/Ac/L3/Power": {"value": None, "textformat": _w},
     "/Ac/Energy/Forward": {"value": None, "textformat": _kwh},
+    "/AutoStart": {"value": None, "textformat": _n},
     "/Current": {"value": None, "textformat": _a},
     "/MaxCurrent": {"value": None, "textformat": _a},
     "/SetCurrent": {"value": None, "textformat": _a},
     "/AutoStart": {"value": 0, "textformat": _n},
-    "/ChargingTime": {"value": None, "textformat": _n},
+    "/Session/Time": {"value": None, "textformat": _n},
+    "/Session/Energy": {"value": None, "textformat": _n},
+    "/Session/Cost": {"value": None, "textformat": _n},
+    "/Session/SavedCost": {"value": None, "textformat": _n},
+    "/Connected": {"value": 0, "textformat": _n},
     "/EnableDisplay": {"value": 1, "textformat": _n},
     "/Mode": {"value": 1, "textformat": _n},
     "/Model": {"value": None, "textformat": _s},
+    "/Position": {"value": 0, "textformat": _n},
     "/Role": {"value": None, "textformat": _n},
     "/StartStop": {"value": 1, "textformat": _n},
     "/Status": {"value": None, "textformat": _n},
@@ -123,36 +129,42 @@ ev_charger_dict = {
 """
 com.victronenergy.evcharger
 
-/Ac/Power                  --> Write: AC Power (W)
-/Ac/L1/Power               --> Write: L1 Power used (W)
-/Ac/L2/Power               --> Write: L2 Power used (W)
-/Ac/L3/Power               --> Write: L3 Power used (W)
-/Ac/Energy/Forward         --> Write: Charged Energy (kWh)
-
-/Current                   --> Write: Actual charging current (A)
-/MaxCurrent                --> Read/Write: Max charging current (A)
-/SetCurrent                --> Read/Write: Charging current (A)
-
-/AutoStart                 --> Read/Write: Start automatically (number)
+/Ac/Energy/Forward         <-- Write: Charged Energy (kWh)
+/Ac/L1/Power               <-- Write: L1 Power used (W)
+/Ac/L2/Power               <-- Write: L2 Power used (W)
+/Ac/L3/Power               <-- Write: L3 Power used (W)
+/Ac/Power                  <-- Write: AC Power (W)
+/AutoStart                 <-- Read/Write: Start automatically (number)
     0 = Charger autostart disabled
     1 = Charger autostart enabled
-/ChargingTime              --> Write: Total charging time (seconds)
-/EnableDisplay             --> Read/Write: Lock charger display (number)
+
+/ChargingTime              <-- Session charging time (seconds) - DEPRECATED
+/Session/Time              <-- Session charging time (seconds)
+/Session/Energy            <-- Session charging energy (kWh)
+/Session/Cost              <-- Session cost (no currency)
+/Session/SavedCost         <-- Optional: Session saved cost (no currency)
+
+/Connected                 <-- Write: 0 = Disconnected, 1 = Connected
+/Current                   <-- Write: Actual charging current (A)
+/MaxCurrent                <-- Read/Write: Max charging current (A)
+/SetCurrent                <-- Read/Write: Charging current (A)
+/EnableDisplay             <-- Read/Write: Lock charger display (number)
     0 = Control disabled
     1 = Control enabled
-/Mode                      --> Read/Write: Charge mode (number)
+/Mode                      <-- Read/Write: Charge mode (number)
     0 = Manual
     1 = Automatic
     2 = Scheduled
-/Model                     --> Model, e.g. AC22E or AC22NS (for No Screen)
-/Position                  --> Write: Charger position (number)
+/Model                     <-- Model, e.g. AC22E or AC22NS (for No Screen)
+/Position                  <-- Write: Charger position (number)
     0 = AC Output
     1 = AC Input
-/Role                      --> Unknown usage
-/StartStop                 --> Read/Write: Enable charging (number)
+/PositionIsAdjustable      <-- 0=Position is not adjustable, 1=Position is adjustable (optional)
+/Role                      <-- Unknown usage
+/StartStop                 <-- Read/Write: Enable charging (number)
     0 = Enable charging: False
     1 = Enable charging: True
-/Status                    --> Write: Status (number)
+/Status                    <-- Write: Status (number)
     0 = Disconnected
     1 = Connected
     2 = Charging
@@ -178,6 +190,8 @@ com.victronenergy.evcharger
     22 = Switching to 3-phase
     23 = Switching to 1-phase
     24 = Stop charging
+/IsGenericEnergyMeter      <-- The device measuring the EVSE is a generic energy meter (lacks
+                               EVSE specific functions such as StartStop)
 """
 
 
@@ -355,7 +369,7 @@ class DbusMqttEvChargerService:
         self._dbusservice.add_path("/ProductId", 0xFFFF)
         self._dbusservice.add_path("/ProductName", productname)
         self._dbusservice.add_path("/CustomName", customname)
-        self._dbusservice.add_path("/FirmwareVersion", "0.0.5-dev (20250217)")
+        self._dbusservice.add_path("/FirmwareVersion", "0.0.5 (20260330)")
         # self._dbusservice.add_path('/HardwareVersion', '')
         self._dbusservice.add_path("/Connected", 1)
 
